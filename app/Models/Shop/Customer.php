@@ -2,6 +2,7 @@
 
 namespace App\Models\Shop;
 
+use App\Libraries\Traits\Validatable;
 use App\Models\Address;
 use App\Models\Comment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,6 +16,7 @@ class Customer extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    use Validatable;
 
     /**
      * @var string
@@ -27,6 +29,21 @@ class Customer extends Model
     protected $casts = [
         'birthday' => 'date',
     ];
+
+    public static $validation_rules = [
+        'name' => 'required',
+        'email' => 'required|email|unique:shop_customers,email',
+        'photo' => 'sometimes|nullable|string',
+        'gender' => 'required|in:male,female',
+        'phone' => 'sometimes|nullable|string|max:255',
+        'birthday' => 'required|date'
+    ];
+
+    public function scopeFilter($query, $name)
+    {
+        return $query->where('name', 'LIKE', "%{$name}%");
+    }
+
 
     public function addresses(): MorphToMany
     {
